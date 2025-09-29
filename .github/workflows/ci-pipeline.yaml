@@ -32,14 +32,13 @@ jobs:
       with:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-        token_format: 'access_token'
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
 
     - name: 'Configure Docker Auth'
       run: |
-        echo "${{ steps.auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin https://${{ env.GCP_REGION }}-docker.pkg.dev
+        gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
 
     - name: 'Verify Authentication'
       run: |
