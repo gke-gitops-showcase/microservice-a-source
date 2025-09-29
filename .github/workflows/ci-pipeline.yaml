@@ -11,7 +11,7 @@ env:
   ARTIFACT_REGISTRY_REPO: "app-images" # The name we gave it in Terraform
   SERVICE_NAME: "microservice-a"
   # The repo with the Kubernetes manifests
-  #MANIFESTS_REPO: ${{ github.repository_owner }}/gke-gitops-showcase/microservice-a-manifests
+  MANIFESTS_REPO: gke-gitops-showcase/microservice-a-manifests
 
 permissions:
   contents: 'read'
@@ -69,26 +69,26 @@ jobs:
         # Save the image URL to a file to pass to the next step
         #echo "IMAGE_URL=$IMAGE_URL" >> $GITHUB_ENV
 
-    # - name: Update K8s Manifest
-    #   run: |
-    #     echo "--- Checking out manifests repository ---"
-    #     # Use a Personal Access Token (PAT) to checkout the manifests repo
-    #     git clone https://${{ secrets.CICD_PAT }}@github.com/${{ env.MANIFESTS_REPO }}.git
+    - name: Update K8s Manifest
+      run: |
+        echo "--- Checking out manifests repository ---"
+        # Use a Personal Access Token (PAT) to checkout the manifests repo
+        git clone https://${{ secrets.CICD_PAT }}@github.com/${{ env.MANIFESTS_REPO }}.git
 
-    #     # Navigate into the cloned repo
-    #     cd microservice-a-manifests
+        # Navigate into the cloned repo
+        cd microservice-a-manifests
 
-    #     echo "--- Updating image tag in deployment.yaml ---"
-    #     # Use yq to safely update the YAML file
-    #     # Install yq first
-    #     sudo wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+        echo "--- Updating image tag in deployment.yaml ---"
+        # Use yq to safely update the YAML file
+        # Install yq first
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
 
-    #     yq e '.spec.template.spec.containers[0].image = "${{ env.IMAGE_URL }}"' -i deployment.yaml
+        yq e '.spec.template.spec.containers[0].image = "${{ env.IMAGE_URL }}"' -i deployment.yaml
 
-    #     echo "--- Committing and pushing changes ---"
-    #     git config --global user.name "GitHub Actions CI"
-    #     git config --global user.email "ci@github.actions"
-    #     git add deployment.yaml
-    #     # Check if there are changes to commit
-    #     git diff --staged --quiet || git commit -m "ci: Update image to ${{ env.IMAGE_URL }}"
-    #     git push
+        echo "--- Committing and pushing changes ---"
+        git config --global user.name "GitHub Actions CI"
+        git config --global user.email "ci@github.actions"
+        git add deployment.yaml
+        # Check if there are changes to commit
+        git diff --staged --quiet || git commit -m "ci: Update image to ${{ env.IMAGE_URL }}"
+        git push
