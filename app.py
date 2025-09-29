@@ -7,7 +7,7 @@ app = Flask(__name__)
 @app.route('/')
 def hello():
     # A simple message to show it's working
-    return "Hello from your GitOps Microservice! v1.0\n"
+    return "Hello from your GitOps Microservice! v1.0\n This is the pod: " + os.getenv('HOSTNAME', 'unknown')
 
 if __name__ == "__main__":
     # Listen on all network interfaces
