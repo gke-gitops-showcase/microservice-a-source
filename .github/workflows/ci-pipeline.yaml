@@ -28,16 +28,26 @@ jobs:
 
     - name: Authenticate to Google Cloud
       id: auth
-      uses: 'google-github-actions/auth@v1'
+      uses: 'google-github-actions/auth@v2'
       with:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        token_format: 'access_token'
 
     - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+      uses: 'google-github-actions/setup-gcloud@v2'
 
-    - name: 'Docker configure-auth'
-      run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
+    - name: 'Configure Docker Auth'
+      run: |
+        echo "${{ steps.auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin https://${{ env.GCP_REGION }}-docker.pkg.dev
+
+    - name: 'Verify Authentication'
+      run: |
+        echo "Verifying authentication..."
+        gcloud auth list
+        gcloud projects list --limit=1
+        echo "Testing Artifact Registry access..."
+        gcloud artifacts repositories list --location=${{ env.GCP_REGION }} --project=${{ env.GCP_PROJECT_ID }}
 
     - name: Build and Push Docker Image
       run: |
@@ -46,10 +56,13 @@ jobs:
 
         # Construct the full image URL
         IMAGE_URL="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
+        
+        echo "Building image: $IMAGE_URL"
 
         # Build the image
         docker build -t $IMAGE_URL .
 
+        echo "Pushing image: $IMAGE_URL"
         # Push the image
         docker push $IMAGE_URL
 
