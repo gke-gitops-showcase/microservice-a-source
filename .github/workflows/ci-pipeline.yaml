@@ -52,6 +52,7 @@ jobs:
       run: |
         # Use the first 7 characters of the commit SHA as the image tag
         IMAGE_TAG=${{ github.sha }}
+        IMAGE_TAG=${IMAGE_TAG:0:7}
 
         # Construct the full image URL
         IMAGE_URL="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
