@@ -67,7 +67,7 @@ jobs:
         docker push $IMAGE_URL
 
         # Save the image URL to a file to pass to the next step
-        #echo "IMAGE_URL=$IMAGE_URL" >> $GITHUB_ENV
+        echo "IMAGE_URL=$IMAGE_URL" >> $GITHUB_ENV
 
     - name: Update K8s Manifest
       run: |
